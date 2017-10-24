@@ -32,9 +32,7 @@ scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 appdir=$PWD
 
 # If the current dir doesn't have an app.psgi fallback to the script's parent dir:
-if [ ! -f "$appdir/app.psgi" ]; then
-  appdir=$scriptdir
-fi
+if [ ! -f "$appdir/app.psgi" ]; then appdir=$scriptdir; fi
 
 # Or, the user can explicitly provide the app dir as the first argument
 if [[ $1 != -* ]]; then
@@ -45,6 +43,24 @@ if [[ $1 != -* ]]; then
   appdir="$( cd $1 && pwd )"
   shift # pull it out of the arg stack for getopts below
 fi
+
+
+ndx=0
+for arg do
+  ndx=$((ndx+1))
+  if [ "$arg" == "--" ]; then
+    # Capture everything after the -- into $extra (string)
+    extra="${@:($ndx+1)}"
+    
+    # This is how we change the special argument array $@. Here we are truncating
+    # after and including the '--' argument which we've already captured above
+    set -- "${@:1:$ndx}"
+    
+    break # Only do this for the first '--'
+  fi
+done
+
+
 
 while getopts "p:nc:i:" opt; do
   case $opt in
@@ -80,6 +96,7 @@ arg_list=(
   "-e RAPI_PSGI_MIN_VERSION=1.3004"
   "-e RAPI_PSGI_FAST_EXIT=1"
 );
+if [ -n "$extra" ]; then arg_list+=("$extra"); fi
 
 execlist=("$dockercmd")
 cmdlist=("$dockercmd \\")
