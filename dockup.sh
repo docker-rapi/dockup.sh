@@ -73,7 +73,7 @@ while getopts "p:nc:i:" opt; do
 done
 shift $((OPTIND -1))
 
-# Catch any rouge words in the arg list that getopts didn't handle
+# Catch any rogue words in the arg list that getopts didn't handle
 if [ "$#" -gt "0" ]; then
   echo "Invalid extra arguments."
   usage
