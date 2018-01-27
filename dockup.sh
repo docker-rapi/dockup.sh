@@ -3,7 +3,7 @@
 #==============================================#
 #   dockup.sh                                  #
 #   github.com/docker-rapi/dockup.sh           #
-    version=0.993                              #
+    version=0.994                              #
 #                                              #
 #==============================================#
 #
@@ -39,7 +39,7 @@ function usage () {
      --version  Print the dockup.sh version and exit
      --install  Script copies itself to the supplied path, defaults to /usr/local/bin/
 
-     -p   TCP/IP port so start webserver on (defaults to 5000)
+     -p   TCP/IP port to start webserver on (defaults to 5000)
      -c   create container. Will generate a docker 'create' instead of 'run' command
      -i   Docker image to use, defaults to rapi/psgi
 
@@ -204,7 +204,7 @@ arg_list=(
   "--interactive --tty"
   "-v ${appdir}:/opt/app"
   "-p $port:$port -e RAPI_PSGI_PORT=$port"
-  "-e RAPI_PSGI_MIN_VERSION=1.3004"
+  "-e RAPI_PSGI_MIN_VERSION=1.3100"
   "-e RAPI_PSGI_FAST_EXIT=1"
 );
 if [ -n "$extra" ]; then arg_list+=("$extra"); fi
@@ -220,6 +220,13 @@ execlist+=("$dockerimg")
 
 cmd=$(printf "%s\n" "${cmdlist[@]}")
 execcmd=$(printf "%s " "${execlist[@]}")
+
+
+`which docker >& /dev/null`
+if [ $? -ne 0 ]; then
+  echo -e "WARNING: 'docker' command not found. Have you installed docker on this system yet?"
+  dryrun=1
+fi
 
 
 if [[ $dryrun ]]; then  
