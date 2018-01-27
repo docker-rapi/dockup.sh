@@ -3,7 +3,7 @@
 #==============================================#
 #   dockup.sh                                  #
 #   github.com/docker-rapi/dockup.sh           #
-    version=0.992                              #
+    version=0.993                              #
 #                                              #
 #==============================================#
 #
@@ -67,8 +67,62 @@ echo -e "-- dockup.sh $version --\n"
 
 if [ "$1" == "--help" ]; then usage; fi
 
+###########################################################
+
+
+function version_gt() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1"; }
+
 if [ "$1" == "--install" ]; then
-  echo 'Install mode coming soon';
+  installdir="/usr/local/bin"
+  if [ "$2" ]; then installdir=$2; fi
+  
+  if [[ ! -d "$installdir" ]]; then
+    echo "Install dir '$installdir' doesn't exist or is not a directory"
+    exit 1
+  fi
+  
+  targfile="$installdir/dockup.sh"
+  if [ -f "$targfile" ]; then
+    curversion=`bash $targfile --version`;
+    if [ $? -ne 0 ]; then
+      echo -e "\nError: $targfile already exists but is corrupt. Remove this file and try again.";
+      exit 1;
+    else
+      if [ $curversion == $version ]; then
+        echo -e "$targfile already installed (v$curversion)"
+        exit 0;
+      fi
+      if version_gt $curversion $version; then
+        echo -e "$targfile is already a newer version (v$curversion) -- won't install older version"
+        exit 2;
+      fi
+      
+      echo -e "Upgrading from v$curversion...\n"
+    fi
+  fi
+  
+  instcmds=(
+    "cp -f ${BASH_SOURCE[0]} $targfile"
+    "chmod ugo+x $targfile"
+  );
+  
+  for ((i = 0; i < ${#instcmds[@]}; i++)); do 
+    echo "  -> ${instcmds[$i]}"
+    `${instcmds[$i]}`
+    if [ $? -ne 0 ]; then echo "   --> error, command failed, aborting"; exit 3; fi
+  done
+  
+  newversion=`$targfile --version`;
+  if [ $? -ne 0 ]; then echo " Unknown error occured; $targfile not installed correctly"; exit 4; fi
+  
+  if [ $newversion == $version ]; then
+    echo -e "\nSuccessfully installed $targfile v$newversion"
+    exit 0
+  else
+    echo -e "Unexpected error. Installed file (v$newversion) does not match source version (v$version)"
+    exit 5
+  fi
+  
   exit 0;
 fi
 
