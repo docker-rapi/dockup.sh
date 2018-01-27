@@ -3,11 +3,75 @@
 #==============================================#
 #   dockup.sh                                  #
 #   github.com/docker-rapi/dockup.sh           #
-    version=0.99                               #
+    version=0.991                               #
 #                                              #
 #==============================================#
 #
 
+
+function usage () {
+   cat <<EOF
+ About dockup.sh:
+   dockup.sh is a utility script which is designed to run perl Plack/PSGI 
+   applications on-the-fly in a similar manner to 'plackup' but with docker and 
+   the rapi/psgi DockerHub image, which is the preferred way to run 
+   RapidApp-based applications, although it works for any PSGI application. 
+   Like plackup, the target app dir should contain a valid app.psgi file which 
+   will be used to start up a dedicated web server on the local system on the 
+   supplied port (which defaults to 5000 like plackup).
+
+   All this script does is generate and run a 'docker run' command. It assumes 
+   you already have a working installation of docker.
+
+   See:   http://hub.docker.com/r/rapi/psgi/
+          http://www.rapi.io
+
+
+ Usage: 
+   dockup.sh [APPDIR]? [-p PORT] [-n] [-c CONTAINER_NAME] [-i IMAGE_NAME]
+
+   Options:
+     [APPDIR]   First argument will be used as the app dir; defaults to the pwd
+     --help     Display this help screen and exit
+     --version  Print the dockup.sh version and exit
+     --install  Script copies itself to the supplied path, defaults to /usr/local/bin/
+
+     -p   TCP/IP port so start webserver on (defaults to 5000)
+     -c   Custom docker container name, also used as 'hostname'
+     -i   Docker image to use, defaults to rapi/psgi
+
+     -n   Dry-run; prints the docker run command which would have been ran without 
+          actually running it. This is useful both to be able to see the effect of 
+          the options combination as well as to be able to generate docker options 
+          to copy and paste and use in a 'docker create' command as well (since 
+          docker create and run share most of the same options).
+
+ Examples:
+   dockup.sh  # starts the app in the current directory with default options
+   
+   dockup.sh -p 5002
+   dockup.sh /path/to/app -c myapp
+   dockup.sh -n -p 5005 -c cool-thing -i my-docker-image
+
+   ./dockup.sh --install  # Installs itself to the local system (/usr/local/bin)
+
+EOF
+   exit 0
+}
+
+if [ "$1" == "--version" ]; then echo $version; exit 0; fi
+
+echo -e "-- dockup.sh $version --\n"
+
+if [ "$1" == "--help" ]; then usage; fi
+
+if [ "$1" == "--install" ]; then
+  echo 'Install mode coming soon';
+  exit 0;
+fi
+
+
+###########################################################
 
 # Defaults:
 port=5000
@@ -15,15 +79,6 @@ dockerimg="rapi/psgi"
 dockercmd="docker run"
 firstargs="--rm"
 
-
-function usage () {
-   cat <<EOF
-Usage: dockup.sh [APPDIR]? [-p PORT] [-n] [-c CONTAINER_NAME] [-i IMAGE_NAME]
-EOF
-   exit 0
-}
-
-echo " -- dockup.sh $version --"
 
 # The directory where this script resides:
 scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -85,7 +140,7 @@ if [ ! -f "$appdir/app.psgi" ]; then
   exit 1
 fi
 
-echo "Using PSGI appplication dir $appdir"
+echo "Using PSGI application dir: $appdir"
 
 
 arg_list=(
