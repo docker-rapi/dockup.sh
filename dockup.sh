@@ -3,7 +3,7 @@
 #==============================================#
 #   dockup.sh                                  #
 #   github.com/docker-rapi/dockup.sh           #
-    version=0.991                               #
+    version=0.992                              #
 #                                              #
 #==============================================#
 #
@@ -11,17 +11,20 @@
 
 function usage () {
    cat <<EOF
+ Usage:
+   dockup.sh [APPDIR]? [-p PORT] [-n] [-c CONTAINER_NAME] [-i IMAGE_NAME]
+
  About dockup.sh:
    dockup.sh is a utility script which is designed to run perl Plack/PSGI 
    applications on-the-fly in a similar manner to 'plackup' but with docker and 
    the rapi/psgi DockerHub image, which is the preferred way to run 
-   RapidApp-based applications, although it works for any PSGI application. 
+   RapidApp-based applications (although it works for any PSGI application). 
    Like plackup, the target app dir should contain a valid app.psgi file which 
-   will be used to start up a dedicated web server on the local system on the 
-   supplied port (which defaults to 5000 like plackup).
+   will be used to start up a dedicated webserver on the local system on the 
+   supplied port (which defaults to 5000, like plackup).
 
-   All this script does is generate and run a 'docker run' command. It assumes 
-   you already have a working installation of docker.
+   This script simply generates and optionally runs a docker run/create command,
+   it assumes/requires you already have a working installation of docker.
 
    See:   http://hub.docker.com/r/rapi/psgi/
           http://www.rapi.io
@@ -37,14 +40,13 @@ function usage () {
      --install  Script copies itself to the supplied path, defaults to /usr/local/bin/
 
      -p   TCP/IP port so start webserver on (defaults to 5000)
-     -c   Custom docker container name, also used as 'hostname'
+     -c   create container. Will generate a docker 'create' instead of 'run' command
      -i   Docker image to use, defaults to rapi/psgi
 
-     -n   Dry-run; prints the docker run command which would have been ran without 
+     -n   Dry-run; prints the docker command which would have been ran without 
           actually running it. This is useful both to be able to see the effect of 
-          the options combination as well as to be able to generate docker options 
-          to copy and paste and use in a 'docker create' command as well (since 
-          docker create and run share most of the same options).
+          the options combination as well as be able to copy and paste it manually
+
 
  Examples:
    dockup.sh  # starts the app in the current directory with default options
@@ -123,7 +125,7 @@ while getopts "p:nc:i:" opt; do
     n) dryrun=1;;
     c) dockercmd="docker create"; firstargs="--name $OPTARG --hostname $OPTARG";;
     i) dockerimg=$OPTARG;;
-    \?|*) usage;;
+    \?|*) echo -e "\n"; usage;;
   esac
 done
 shift $((OPTIND -1))
@@ -140,7 +142,7 @@ if [ ! -f "$appdir/app.psgi" ]; then
   exit 1
 fi
 
-echo "Using PSGI application dir: $appdir"
+#echo "Using PSGI application dir: $appdir"
 
 
 arg_list=(
@@ -165,14 +167,16 @@ execlist+=("$dockerimg")
 cmd=$(printf "%s\n" "${cmdlist[@]}")
 execcmd=$(printf "%s " "${execlist[@]}")
 
-echo -e "\n$cmd\n"
+
+if [[ $dryrun ]]; then  
+  echo -e "\n[dry-run] This is the command which would have been ran:\n"
+  echo -e "\n$cmd\n"
+
+  exit 0;
+else
+  echo -e "\n-->Running command:\n\n$cmd\n"
+  eval "exec $execcmd"
+fi
 
 
-#if [[ $dryrun ]]; then
-#  echo "[dry run]";
-#  exit 0;
-#fi
-#
-#eval "exec $execcmd"
-#
 
