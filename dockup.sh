@@ -3,7 +3,7 @@
 #==============================================#
 #   dockup.sh                                  #
 #   github.com/docker-rapi/dockup.sh           #
-    version=1.000                              #
+    version=1.001                              #
 #                                              #
 #==============================================#
 #
@@ -103,7 +103,7 @@ if [ "$1" == "--install" ]; then
   
   instcmds=(
     "cp -f ${BASH_SOURCE[0]} $targfile"
-    "chmod ugo+x $targfile"
+    "chmod ugo+rx $targfile"
   );
   
   for ((i = 0; i < ${#instcmds[@]}; i++)); do 
