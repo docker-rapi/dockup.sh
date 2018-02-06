@@ -50,7 +50,7 @@ $DOCKUPDOWNLOAD || clean_exit 1
 echo
 echo "## Installing dockup.sh via self-install:"
 
-bash $LOCALINSTALLER --install || clean_exit 1
+sudo bash $LOCALINSTALLER --install || clean_exit 1
 
 echo
 echo "## Done."
