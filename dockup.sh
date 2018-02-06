@@ -146,7 +146,7 @@ appdir=$PWD
 if [ ! -f "$appdir/app.psgi" ]; then appdir=$scriptdir; fi
 
 # Or, the user can explicitly provide the app dir as the first argument
-if [[ $1 != -* ]]; then
+if [[ $# -gt 0 && $1 != -* ]]; then
   if [[ ! -d "$1" ]]; then
     echo "Supplied application directory $1 not found"
     usage
