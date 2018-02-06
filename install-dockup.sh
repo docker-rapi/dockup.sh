@@ -10,6 +10,10 @@
 #==================================================================#
 
 
+if [ -z "$DOCKUP_INSTALL_DIR" ]; then
+  DOCKUP_INSTALL_DIR="/usr/local/bin"
+fi
+
 if [ -z "$TMPDIR" ]; then
     if [ -d "/tmp" ]; then
         TMPDIR="/tmp"
@@ -48,9 +52,11 @@ echo "## Download the latest dockup.sh script"
 $DOCKUPDOWNLOAD || clean_exit 1
 
 echo
-echo "## Installing dockup.sh via self-install:"
+echo "## Run dockup.sh self-install [$DOCKUP_INSTALL_DIR]:"
+echo "   (set DOCKUP_INSTALL_DIR to change)"
+echo
 
-sudo bash $LOCALINSTALLER --install || clean_exit 1
+sudo bash $LOCALINSTALLER --install $DOCKUP_INSTALL_DIR || clean_exit 1
 
 echo
 echo "## Done."
