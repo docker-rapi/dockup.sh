@@ -138,6 +138,8 @@ dockercmd="docker run"
 firstargs="--rm"
 
 
+if [ $# -eq 0 ]; then noargs=1; fi
+
 # The directory where this script resides:
 scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -195,6 +197,7 @@ fi
 
 
 if [ ! -f "$appdir/app.psgi" ]; then
+  if [[ $noargs ]]; then usage; fi
   echo "Error: Could not determine app dir or no app.psgi file found."
   exit 1
 fi
