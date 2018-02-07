@@ -3,7 +3,7 @@
 #==============================================#
 #   dockup.sh                                  #
 #   github.com/docker-rapi/dockup.sh           #
-    version=1.002                              #
+    version=1.003                              #
 #                                              #
 #==============================================#
 #
@@ -12,7 +12,7 @@
 function usage () {
    cat <<EOF
  Usage:
-   dockup.sh [APPDIR]? [-p PORT] [-n] [-c CONTAINER_NAME] [-i IMAGE_NAME]
+   dockup.sh [APPDIR]? [-p PORT] [-n] [-c CONTAINER_NAME] [-d] [-i IMAGE_NAME]
 
  About dockup.sh:
    dockup.sh is a utility script which is designed to run perl Plack/PSGI 
@@ -21,7 +21,7 @@ function usage () {
    RapidApp-based applications (although it works for any PSGI application). 
    Like plackup, the target app dir should contain a valid app.psgi file which 
    will be used to start up a dedicated webserver on the local system on the 
-   supplied port (which defaults to 5000, like plackup).
+   supplied port (which defaults to 5200).
 
    This script simply generates and optionally runs a docker run/create command,
    it assumes/requires you already have a working installation of docker.
@@ -31,7 +31,7 @@ function usage () {
 
 
  Usage: 
-   dockup.sh [APPDIR]? [-p PORT] [-n] [-c CONTAINER_NAME] [-i IMAGE_NAME]
+   dockup.sh [APPDIR]? [-p PORT] [-n] [-c CONTAINER_NAME] [-d] [-i IMAGE_NAME]
 
    Options:
      [APPDIR]   First argument will be used as the app dir; defaults to the pwd
@@ -39,7 +39,7 @@ function usage () {
      --version  Print the dockup.sh version and exit
      --install  Script copies itself to the supplied path, defaults to /usr/local/bin/
 
-     -p   TCP/IP port to start webserver on (defaults to 5000)
+     -p   TCP/IP port to start webserver on (defaults to 5200)
      -c   create container. Will generate a docker 'create' instead of 'run' command
      -i   Docker image to use, defaults to rapi/psgi
      -d   Download (docker pull) the latest image (-i) before running, default false
@@ -132,7 +132,7 @@ fi
 ###########################################################
 
 # Defaults:
-port=5000
+port=5200
 dockerimg="rapi/psgi"
 dockercmd="docker run"
 firstargs="--rm"
