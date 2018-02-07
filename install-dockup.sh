@@ -48,11 +48,14 @@ else
 fi
 
 
-echo "## Download the latest dockup.sh script"
+echo "## Downloading latest dockup.sh script..."
 $DOCKUPDOWNLOAD || clean_exit 1
 
+DLVERSION=$(bash $LOCALINSTALLER --version) || clean_exit 1
+echo "   (Successfully downloaded v$DLVERSION)"
+
 echo
-echo "## Run dockup.sh self-install [$DOCKUP_INSTALL_DIR]:"
+echo "## Installing dockup.sh to '$DOCKUP_INSTALL_DIR' [using sudo]:"
 echo "   (set DOCKUP_INSTALL_DIR to change)"
 echo
 
