@@ -42,6 +42,7 @@ function usage () {
      -p   TCP/IP port to start webserver on (defaults to 5000)
      -c   create container. Will generate a docker 'create' instead of 'run' command
      -i   Docker image to use, defaults to rapi/psgi
+     -d   Download (docker pull) the latest image (-i) before running, default false
 
      -n   Dry-run; prints the docker command which would have been ran without 
           actually running it. This is useful both to be able to see the effect of 
@@ -52,6 +53,7 @@ function usage () {
    dockup.sh  # starts the app in the current directory with default options
    
    dockup.sh -p 5002
+   dockup.sh -d -i rapi/psgi:1.3100
    dockup.sh /path/to/app -c myapp
    dockup.sh -n -p 5005 -c cool-thing -i my-docker-image
 
@@ -173,12 +175,13 @@ done
 
 
 
-while getopts "p:nc:i:" opt; do
+while getopts "p:ndc:i:" opt; do
   case $opt in
     p) port=$OPTARG;;
     n) dryrun=1;;
     c) dockercmd="docker create"; firstargs="--name $OPTARG --hostname $OPTARG";;
     i) dockerimg=$OPTARG;;
+    d) autopull=1;;
     \?|*) echo -e "\n"; usage;;
   esac
 done
@@ -235,6 +238,10 @@ if [[ $dryrun ]]; then
 
   exit 0;
 else
+  if [[ $autopull ]]; then
+    echo "--> docker pull $dockerimg"
+    `docker pull $dockerimg 1>&2`
+  fi
   echo -e "\n-->Running command:\n\n$cmd\n"
   eval "exec $execcmd"
 fi
