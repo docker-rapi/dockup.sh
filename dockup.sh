@@ -60,7 +60,7 @@ function usage () {
    ./dockup.sh --install  # Installs itself to the local system (/usr/local/bin)
 
 EOF
-   exit 0
+   exit $1
 }
 
 if [ "$1" == "--version" ]; then echo $version; exit 0; fi
@@ -184,7 +184,7 @@ while getopts "p:ndc:i:" opt; do
     c) dockercmd="docker create"; firstargs="--name $OPTARG --hostname $OPTARG";;
     i) dockerimg=$OPTARG;;
     d) autopull=1;;
-    \?|*) echo -e "\n"; usage;;
+    \?|*) echo -e "\n"; usage 1;;
   esac
 done
 shift $((OPTIND -1))
